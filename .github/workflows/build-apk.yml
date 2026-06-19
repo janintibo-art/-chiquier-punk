@@ -22,17 +22,15 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Installer les dÃ©pendances
-        run: npm install
-
-      - name: Ajouter la plateforme Android
-        run: npx cap add android
-
-      - name: Synchroniser
-        run: npx cap sync android
-
-      - name: Construire l'APK
+      - name: Trouver le projet et construire l'APK
         run: |
+          # cherche le dossier qui contient package.json (oÃ¹ qu'il soit)
+          DIR=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -n1)")
+          echo "Projet trouvÃ© dans : $DIR"
+          cd "$DIR"
+          npm install
+          npx cap add android
+          npx cap sync android
           chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
 
@@ -40,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: echiquier-punk-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: '**/app-debug.apk'
