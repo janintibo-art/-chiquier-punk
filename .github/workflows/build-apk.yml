@@ -22,10 +22,27 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      - name: DÃ©compresser le projet (si un zip est prÃ©sent)
+        run: |
+          ZIP=$(find . -name '*.zip' -not -path '*/.git/*' | head -n1)
+          if [ -n "$ZIP" ]; then
+            echo "Archive trouvÃ©e : $ZIP â€” dÃ©compression..."
+            unzip -o "$ZIP"
+          else
+            echo "Pas de zip trouvÃ©, on continue avec les fichiers prÃ©sents."
+          fi
+
       - name: Trouver le projet et construire l'APK
         run: |
-          # cherche le dossier qui contient package.json (oÃ¹ qu'il soit)
-          DIR=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -n1)")
+          PKG=$(find . -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*' | head -n1)
+          if [ -z "$PKG" ]; then
+            echo "=========================================================="
+            echo " ERREUR : aucun package.json trouvÃ© dans le dÃ©pÃ´t."
+            echo " As-tu bien envoyÃ© le fichier echiquier-punk.zip dans le dÃ©pÃ´t ?"
+            echo "=========================================================="
+            exit 1
+          fi
+          DIR=$(dirname "$PKG")
           echo "Projet trouvÃ© dans : $DIR"
           cd "$DIR"
           npm install
