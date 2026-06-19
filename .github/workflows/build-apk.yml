@@ -36,10 +36,7 @@ jobs:
         run: |
           PKG=$(find . -name package.json -not -path '*/node_modules/*' -not -path '*/.git/*' | head -n1)
           if [ -z "$PKG" ]; then
-            echo "=========================================================="
-            echo " ERREUR : aucun package.json trouvÃ© dans le dÃ©pÃ´t."
-            echo " As-tu bien envoyÃ© le fichier echiquier-punk.zip dans le dÃ©pÃ´t ?"
-            echo "=========================================================="
+            echo "ERREUR : aucun package.json trouvÃ©. As-tu bien envoyÃ© echiquier-punk.zip ?"
             exit 1
           fi
           DIR=$(dirname "$PKG")
@@ -47,6 +44,7 @@ jobs:
           cd "$DIR"
           npm install
           npx cap add android
+          npx capacitor-assets generate --android || echo "Icone personnalisee ignoree (icone par defaut conservee)."
           npx cap sync android
           chmod +x android/gradlew
           cd android && ./gradlew assembleDebug
